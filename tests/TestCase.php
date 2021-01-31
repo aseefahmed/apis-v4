@@ -1,25 +1,31 @@
 <?php
 
-abstract class TestCase extends Illuminate\Foundation\Testing\TestCase
+namespace Tests;
+
+use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+
+abstract class TestCase extends BaseTestCase
 {
-    /**
-     * The base URL to use while testing the application.
-     *
-     * @var string
-     */
-    protected $baseUrl = 'http://localhost';
+    use CreatesApplication;
 
-    /**
-     * Creates the application.
-     *
-     * @return \Illuminate\Foundation\Application
-     */
-    public function createApplication()
+    protected $loggedInUser;
+
+    protected $user;
+
+    protected $headers;
+
+    public function setUp()
     {
-        $app = require __DIR__.'/../bootstrap/app.php';
+        parent::setUp();
 
-        $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+        $users = factory(\App\User::class)->times(2)->create();
 
-        return $app;
+        $this->loggedInUser = $users[0];
+
+        $this->user = $users[1];
+
+        $this->headers = [
+            'Authorization' => "Bearer {$this->loggedInUser->token}"
+        ];
     }
 }
